@@ -1,0 +1,298 @@
+SQL Code
+CREATE TABLE OneWayFlight
+(
+FReference VARCHAR2(15)
+,CONSTRAINT flight_ref_oneway_fk FOREIGN KEY (FReference) REFERENCES Flight(FReference));
+CREATE TABLE TwoWaysFlight
+(
+FReference VARCHAR2(15)
+,CONSTRAINT flight_ref_twoway_fk FOREIGN KEY (FReference) REFERENCES Flight(FReference));
+CREATE TABLE Location
+(Country VARCHAR2(75)
+CONSTRAINT country_location_pk PRIMARY KEY
+,StreetName VARCHAR2(50)
+CONSTRAINT streetN_nn NOT NULL,
+City VARCHAR2(30)
+CONSTRAINT city_nn NOT NULL);
+CREATE TABLE Payment
+(
+Bank VARCHAR2(50)
+CONSTRAINT bank_nn NOT NULL,
+CardInfo VARCHAR2(25)
+CONSTRAINT card_info_pk PRIMARY KEY
+CONSTRAINT card_info_nn NOT NULL
+CONSTRAINT card_info_format
+CHECK (REGEXP_LIKE(CardInfo,'^(\d{16}):(\d{3}):(0[1-12]/2[4-9])$')),
+
+TotalPriceNUMBER
+CONSTRAINT total_price_nn NOT NULL,
+CarID NUMBER
+CONSTRAINT carid_payment_nn NOT NULL,
+CONSTRAINT carid_payment_fk FOREIGN KEY (CarID) REFERENCES Car(CarID),
+FReference VARCHAR2(15)
+CONSTRAINT flight_ref_payment_nn NOT NULL,
+CONSTRAINT flight_ref_payment_fk FOREIGN KEY (FReference) REFERENCES Flight(FReference),
+ID VARCHAR2(25)
+CONSTRAINT id_payment_nn NOT NULL ,
+CONSTRAINT id_payment_fk FOREIGN KEY (ID) REFERENCES USERS(ID));
+CREATE TABLE Hotel
+(
+HReference VARCHAR2(15)
+CONSTRAINT hotel_ref_pk PRIMARY KEY,
+Name VARCHAR2(35)
+CONSTRAINT name_hotel_nn NOT NULL,
+NumberOfRooms NUMBER
+CONSTRAINT num_of_rooms_nn NOT NULL,
+StayFrom DATE
+CONSTRAINT from_date_nn NOT NULL,
+StayTo DATE
+CONSTRAINT to_date_nn NOT NULL,
+Country VARCHAR2(75)
+,CONSTRAINT country_hotel_fk FOREIGN KEY (Country) REFERENCES Location(Country),
+CardInfo VARCHAR2(25)
+CONSTRAINT card_info_hotel_nn NOT NULL
+,CONSTRAINT card_info_hotel_fk FOREIGN KEY (CardInfo) REFERENCES Payment(CardInfo));
+
+CREATE TABLE HBooks
+(
+ID VARCHAR2(25),
+HReference VARCHAR2(15),
+CONSTRAINT hotel_ref_id_pk PRIMARY KEY (ID,HReference),
+CONSTRAINT hotel_ref_books_fk FOREIGN KEY (HReference) REFERENCES Hotel(HReference),
+CONSTRAINT id_hbooks_fk FOREIGN KEY (ID) REFERENCES USERS(ID));
+CREATE TABLE depends_on
+(
+Currency VARCHAR2(10)
+CONSTRAINT currency_nn NOT NULL,
+Country VARCHAR2(75)
+,CardInfo VARCHAR2(25),
+CONSTRAINT country_cardinfo_pk PRIMARY KEY (Country,CardInfo),
+CONSTRAINT country_depends_fk FOREIGN KEY (Country) REFERENCES Location(Country),
+CONSTRAINT card_info_depends_fk FOREIGN KEY (CardInfo) REFERENCES Payment(CardInfo)
+);
+CREATE TABLEOthers
+(
+Fname VARCHAR2(20)
+CONSTRAINT fname_o_nn NOT NULL
+,Lname VARCHAR2(25)
+CONSTRAINT lname_o_nn NOT NULL,
+PassportDetails VARCHAR2(15)
+CONSTRAINT passport_details_o_pk PRIMARY KEY ,
+ID VARCHAR2(25)
+CONSTRAINT id_o_unq UNIQUE,CONSTRAINT id_o_fk FOREIGN KEY (ID) REFERENCES USERS(ID)
+);
+
+CREATE TABLE Car
+(
+CarID NUMBER
+CONSTRAINT car_id_pk PRIMARY KEY,
+Time VARCHAR2(8)
+CONSTRAINT car_time_nn NOT NULL
+CONSTRAINT time_format_car
+CHECK (REGEXP_LIKE(Time, '^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$')),
+CDate Date
+CONSTRAINT car_date_nn NOT NULL,
+Type VARCHAR2(25)
+CONSTRAINT car_type_nn NOT NULL,
+ID VARCHAR2(25)
+,CONSTRAINT car_user_id_fk FOREIGN KEY (ID) REFERENCES USERS(ID),
+Country VARCHAR2(75)
+,CONSTRAINT car_location_country_fk FOREIGNKEY (Country) REFERENCES Location(Country));
+CREATE TABLE Flight
+( FReference VARCHAR2(15)
+CONSTRAINT f_reference_flight_pk PRIMARY KEY,
+Time VARCHAR2(8)
+CONSTRAINT time_nn NOT NULL
+CONSTRAINT time_format
+CHECK (REGEXP_LIKE(Time, '^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$')),
+FDate DATE
+CONSTRAINT flight_date_nn NOT NULL,
+AirLines VARCHAR2(20)
+CONSTRAINT airlines_nn NOT NULL);
+
+CREATE TABLE FBooks
+(FReference VARCHAR2(15)
+,CONSTRAINT f_reference_books_fk FOREIGN KEY (FReference) REFERENCES Flight(FReference),
+ID VARCHAR2(25)
+,CONSTRAINT id_books_fk FOREIGN KEY (ID) REFERENCES USERS(ID),
+CONSTRAINT id_flightRef_pk PRIMARY KEY (FReference,ID));
+CREATE TABLE USERS
+(ID VARCHAR2(25)
+CONSTRAINT id_nn NOT NULL
+CONSTRAINT id_user_pk PRIMARY KEY,
+EMAIL VARCHAR2(50)
+CONSTRAINT email_nn NOT NULL
+CONSTRAINT check_email_format
+CHECK(REGEXP_LIKE(EMAIL,'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')),
+PhoneNumber NUMBER
+CONSTRAINT phone_number_nn NOT NULL,
+Password VARCHAR2(25)
+CONSTRAINT password_nn NOT NULL,
+PassportDetails VARCHAR2(15)
+CONSTRAINT passport_details_nn NOT NULL
+CONSTRAINT passport_details_Unq UNIQUE,
+FNAME VARCHAR2(20)
+CONSTRAINT fname_nn NOT NULL,
+LNAME VARCHAR2(25)
+CONSTRAINT lname_nn NOT NULL,
+COUNTRY VARCHAR2(75),
+CONSTRAINT country_user_fk FOREIGN KEY(COUNTRY) REFERENCES Location(Country));
+
+//USERS
+insert into users (ID,EMAIL,PhoneNumber,Password,PassportDetails,FNAME,LNAME,COUNTRY)
+values('hamad123','hamad123@gmail.com',556168745,'hamad4563','952019QWE:UAE','hamad',"Al Maktoum",
+"United Arab Emirates");
+insert into users (ID,EMAIL,PhoneNumber,Password,PassportDetails,FNAME,LNAME,COUNTRY)
+values('antoine123','antoine123@gmail.com',1632960953,'gomez123','8923146HU:UnitedKingdom','antoine','gomez','France');
+insert into users (ID,EMAIL,PhoneNumber,Password,PassportDetails,FNAME,LNAME,COUNTRY)
+values('ahmad03','ahmad021@gmail.com',791234567,'ahmad1234','194232GKL:Jordan','Ahmad','Mohammad','Turkey');
+insert into users (ID,EMAIL,PhoneNumber,Password,PassportDetails,FNAME,LNAME,COUNTRY)
+values('aitana98','bonmati09@gmail.com',884313506,'aitana123','2187903GY:Spain','Aitana','Bonmati','Spain');
+insert into users (ID,EMAIL,PhoneNumber,Password,PassportDetails,FNAME,LNAME,COUNTRY)
+values('zayed04','fahad123@gmail.com',531279454,'fahad456','8923141QA:QATAR','fahad','zayed',"Kingdom Of Saudi Arabia");
+//HOTEL
+INSERT INTO HOTEL (HReference,Name,NumberOfRooms,StayFrom,StayTo,Country,CardInfo)
+VALUES('IEAM1EN302W5',"Hamad Al Maktoum",2,'26-DEC-23','02-JAN-24',"United Arab
+Emirates",'4043149122201153:123:04/27');
+INSERT INTO HOTEL (HReference,Name,NumberOfRooms,StayFrom,StayTo,Country,CardInfo)
+VALUES('N1ZBPXQ8DLDD',"Fahad Zayed",1,'15-JUL-24','25-JUL-24',"Kingdom Of Saudi Arabia",'4339690857621845:980:05/28');
+INSERT INTO HOTEL (HReference,Name,NumberOfRooms,StayFrom,StayTo,Country,CardInfo)
+VALUES('2D6H5XHYKUB5',"Ahmad Mohammad",1,01-JAN-24','07-JAN-24',"Turkey",'1792153590672458:752:12/25');
+INSERT INTO HOTEL (HReference,Name,NumberOfRooms,StayFrom,StayTo,Country,CardInfo)
+VALUES('GVWQ258SU5JH',"Antoine Gomez",4,'22-FEB-24','28-FEB-24',"France",'2819595125491190:775:10/26');
+INSERT INTO HOTEL (HReference,Name,NumberOfRooms,StayFrom,StayTo,Country,CardInfo)
+VALUES('0E108R84IHVP',"Aitana Bonmati",3,'12-MAY-24','13-MAY-24',"Spain",'5645469192483792:902:03/29');
+//CAR
+INSERT INTO CAR (CARID,CDate,Type,ID,Country,Time)
+VALUES(46872870,'04-JAN-24','Mazda','hamad123',"United Arab Emirates",'08:00 PM');
+INSERT INTO CAR (CARID,CDate,Type,ID,Country,Time)
+
+VALUES(5264632,'22-FEB-24','Toyota','zayed04',"Kingdom Of Saudi Arabia",'10:30 AM');
+INSERT INTO CAR (CARID,CDate,Type,ID,Country,Time)
+VALUES(95387896,'30-DEC-23','FORD','ahmad03',"Turkey",'08:00 AM');
+INSERT INTO CAR (CARID,CDate,Type,ID,Country,Time)
+VALUES(12577729,'20-JUL-24','Volkswagen','antoine123',"France",'09:30 AM');
+INSERT INTO CAR (CARID,CDate,Type,ID,Country,Time)
+VALUES(33678404,'12-MAY-24','Nissan','aitana98',"Spain",'12:30 AM');
+//PAYMENT
+INSERT INTO PAYMENT (Bank,CardInfo,TotalPrice,CarID,FReference,ID)
+VALUES ("Arabi Bank",'4043149122201153:123:04/27',550,46872870,'ABC123','hamad123');
+//this is the second ahmad flight
+//this is just to do the join+ aggregation
+INSERT INTO PAYMENT (Bank,CardInfo,TotalPrice,CarID,FReference,ID)
+VALUES ("Cairo Amman bank",'5324044282817655:703:04/27',790,95387896,'JOR631','ahmad03');
+INSERT INTO PAYMENT (Bank,CardInfo,TotalPrice,CarID,FReference,ID)
+VALUES ("United Arab Bank",'4339690857621845:980:05/28',1250,5264632,'KSA721','zayed04');
+//first ahmad flight
+INSERT INTO PAYMENT (Bank,CardInfo,TotalPrice,CarID,FReference,ID)
+VALUES ("Bank al Etihad",'1792153590672458:752:12/25',2539,95387896,'ABD931','ahmad03');
+INSERT INTO PAYMENT (Bank,CardInfo,TotalPrice,CarID,FReference,ID)
+VALUES ("Lloyds Bank",'2819595125491190:775:10/26',999,12577729,'SPA901','antoine123');
+INSERT INTO PAYMENT (Bank,CardInfo,TotalPrice,CarID,FReference,ID)
+VALUES ("Santander Bank",'5645469192483792:902:03/29',3500,33678404,'JOR631','antoine123');
+//FLIGHT
+INSERT INTO FLIGHT (FReference,FDate,Airlines,Time)
+VALUES ('ABC123','26-DEC-23',"Turkish Airlines","02:30 PM");
+INSERT INTO FLIGHT (FReference,FDate,Airlines,Time)
+VALUES ('ABD931','01-JAN-24',"Fly Emirates","02:15 AM");
+INSERT INTO FLIGHT (FReference,FDate,Airlines,Time)
+VALUES ('SPA901','21-FEB-24',"Etihad Airways","06:15 AM");
+INSERT INTO FLIGHT (FReference,FDate,Airlines,Time)
+VALUES ('KSA721','15-JUL-24',"Gulf Air","10:00 AM");
+
+INSERT INTO FLIGHT (FReference,FDate,Airlines,Time)
+VALUES ('JOR631','12-MAY-24',"Fly Dubai","11:45 PM");
+//FBOOKS
+INSERT INTO FBOOKS (FReference,ID)
+VALUES('ABC123','hamad123');
+INSERT INTO FBOOKS (FReference,ID)
+VALUES('ABD931','ahmad03');
+INSERT INTO FBOOKS (FReference,ID)
+VALUES('JOR631','aitana98');
+INSERT INTO FBOOKS (FReference,ID)
+VALUES('KSA721','zayed04');
+INSERT INTO FBOOKS (FReference,ID)
+VALUES('SPA901','antoine123');
+//HBOOKS
+INSERT INTO HBOOKS (ID,HReference)
+VALUES('ahmad03','2D6H5XHYKUB5');
+INSERT INTO HBOOKS (ID,HReference)
+VALUES('aitana98','0E108R84IHVP');
+INSERT INTO HBOOKS (ID,HReference)
+VALUES('antoine123','GVWQ258SU5JH');
+INSERT INTO HBOOKS (ID,HReference)
+VALUES('hamad123','IEAM1EN302W5');
+INSERT INTO HBOOKS (ID,HReference)
+VALUES('zayed04','N1ZBPXQ8DLDD');
+//Depends_on
+INSERT INTO DEPENDS_ON (Currency,Country,CardInfo)
+VALUES("Jordanian Dinar",'Turkey','1792153590672458:752:12/25');
+INSERT INTO DEPENDS_ON (Currency,Country,CardInfo)
+VALUES("Euro",'Spain','5645469192483792:902:03/29');
+INSERT INTO DEPENDS_ON (Currency,Country,CardInfo)
+VALUES("Sterling Pound",'France','2819595125491190:775:10/26');
+INSERT INTO DEPENDS_ON (Currency,Country,CardInfo)
+VALUES("Saudi Riyal","Kingdom Of Saudi Arabia",'4339690857621845:980:05/28');
+INSERT INTO DEPENDS_ON (Currency,Country,CardInfo)
+VALUES("Emirati Dirham","United Arab Emirates",'4043149122201153:123:04/27');
+
+//LOCATION
+INSERT INTO LOCATION (Country,StreetName,City)
+VALUES ("Turkey", "Istiklal Street","Istanbul");
+INSERT INTO LOCATION (Country,StreetName,City)
+VALUES ("France", "Avenue Victor Hugo","Paris");
+INSERT INTO LOCATION (Country,StreetName,City)
+VALUES ("Spain", "La Rambla","Barcelona");
+INSERT INTO LOCATION (Country,StreetName,City)
+VALUES ("United Arab Emirates", "Al Yalayis Street","Dubai");
+INSERT INTO LOCATION (Country,StreetName,City)
+VALUES ("Kingdom Of Saudi Arabia", "Tahlia Street","Riyadh");
+//ONE WAY FLIGHT
+INSERT INTO ONEWAYFLIGHT (FReference)
+VALUES ('ABC123');
+INSERT INTO ONEWAYFLIGHT (FReference)
+VALUES ('ABD931');
+INSERT INTO ONEWAYFLIGHT (FReference)
+VALUES ('SPA901');
+INSERT INTO ONEWAYFLIGHT (FReference)
+VALUES ('KSA721');
+INSERT INTO ONEWAYFLIGHT (FReference)
+VALUES ('JOR631');
+//TWO WAYSFLIGHT
+INSERT INTO TWOWAYSFLIGHT (FReference)
+VALUES ('ABC123');
+INSERT INTO TWOWAYSFLIGHT (FReference)
+VALUES ('ABD931');
+INSERT INTO TWOWAYSFLIGHT (FReference)
+VALUES ('SPA901');
+INSERT INTO TWOWAYSFLIGHT (FReference)
+VALUES ('KSA721');
+INSERT INTO TWOWAYSFLIGHT (FReference)
+VALUES ('JOR631');
+
+//OTHERS
+INSERT INTO OTHERS (Fname,Lname,PassportDetails,ID)
+VALUES ("Abdullah","Al Maktoum","836450QWE:UAE","hamad123");
+INSERT INTO OTHERS (Fname,Lname,PassportDetails,ID)
+VALUES ("Bahaa","Ahmad","176055GKL:Jordan","ahmad03");
+INSERT INTO OTHERS (Fname,Lname,PassportDetails,ID)
+VALUES ("Harry","Gomez","3974110HU:UK","antoine123");
+INSERT INTO OTHERS (Fname,Lname,PassportDetails,ID)
+VALUES ("Ali","Mohammad","6774360QA:QATAR","zayed04");
+INSERT INTO OTHERS (Fname,Lname,PassportDetails,ID)
+VALUES ("Jorge","Bonmati","1819827GY:Spain","aitana98");
+//MODIFY RECORDS
+UPDATE CAR
+SET TYPE='Toyota',Time='10:00 PM'
+WHERE TYPE='Mazda';
+//DELETE RECORDS
+DELETE OTHERS
+WHERE FNAME='Abdullah';
+//Join records with aggregation
+SELECT USEERS.ID,AVG (TOTALPRICE)
+FROM USERS.ID=PAYMENT.ID AND (TOTALPRICE)>100
+GROUP BY USERS.ID;
+//Join records
+SELECT FNAME,LNAME,USERS.ID,COUNTRY,FREFERENCE
+FROM FBOOKS,USERS
+WHERE FBOOKS.ID=USERS.ID AND FNAME='Ahmad';
